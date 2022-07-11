@@ -1,5 +1,5 @@
-const DeTrace = artifacts.require("DeTrace");
+const Vahan = artifacts.require("Vahan");
 
 module.exports = function(deployer) {
-    deployer.deploy(DeTrace);
+    deployer.deploy(Vahan);
 };
