@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-contract DeTrace {
+contract ahan {
     enum Role {
         manufacturer,
         retailer,
@@ -15,7 +15,7 @@ contract DeTrace {
         sold
     }
 
-    struct Product {
+    struct Vehicle {
         uint256 id;
         string name;
         uint256 price;
@@ -30,13 +30,13 @@ contract DeTrace {
     struct Manufacturer {
         address id;
         string name;
-        uint256 total_products;
+        uint256 total_vehicles;
     }
 
     struct Retailer {
         address id;
         string name;
-        uint256 total_products;
+        uint256 total_vehicles;
     }
 
     struct Customer {
@@ -45,12 +45,12 @@ contract DeTrace {
         uint256 total_orders;
     }
 
-    uint256 public total_products;
-    Product[] public products;
+    uint256 public total_vehicles;
+    Vehicle[] public vehicles;
     mapping(address => Manufacturer) public manufacturers;
     mapping(address => Retailer) public retailers;
     mapping(address => Customer) public customers;
-    mapping(uint256 => address[]) public Product_Retailers;
+    mapping(uint256 => address[]) public Vehicle_Retailers;
 
     mapping(address => uint256[]) public manufacturer_inventory;
     mapping(address => uint256[]) public retailer_inventory;
@@ -58,28 +58,28 @@ contract DeTrace {
 
     address[] address_array;
 
-    event DeTrace_deployed(string _message);
-    event Product_Added(
-        uint256 _productId,
+    event Vahan_deployed(string _message);
+    event Vehicle_Added(
+        uint256 _VehicleId,
         address _manufacturerAddress,
         uint256 _time
     );
-    event Product_Released(
-        uint256 _productId,
+    event Vehicle_Released(
+        uint256 _vehicleId,
         address _manufacturerAddress,
         address _retailerAddress,
         uint256 _time
     );
-    event Product_Sold(
-        uint256 _productId,
+    event Vehicle_Sold(
+        uint256 _vehicleId,
         address _retailerAddress,
         address _customerAddress,
         uint256 _time
     );
 
     constructor() {
-        total_products = 0;
-        emit DeTrace_deployed("DeTrace has been deployed");
+        total_vehicles = 0;
+        emit Vahan_deployed("Vahan has been deployed");
     }
 
     modifier isManufacturer(address _manufacturerAddress) {
@@ -117,8 +117,8 @@ contract DeTrace {
         return array;
     }
 
-    function getProducts() public view returns (Product[] memory) {
-        return products;
+    function getVehicles() public view returns (Vehicle[] memory) {
+        return vehicles;
     }
 
     function addManufacturer(string memory _name)
@@ -134,7 +134,7 @@ contract DeTrace {
         Manufacturer memory _manufacturer;
         _manufacturer.id = msg.sender;
         _manufacturer.name = _name;
-        _manufacturer.total_products = 0;
+        _manufacturer.total_vehicles = 0;
 
         manufacturers[msg.sender] = _manufacturer;
 
@@ -154,7 +154,7 @@ contract DeTrace {
         Retailer memory _retailer;
         _retailer.id = msg.sender;
         _retailer.name = _name;
-        _retailer.total_products = 0;
+        _retailer.total_vehicles = 0;
 
         retailers[msg.sender] = _retailer;
 
@@ -180,129 +180,129 @@ contract DeTrace {
         return _customer;
     }
 
-    function addProduct(
+    function addVehicle(
         string memory _name,
         uint256 _price,
         string memory _ipfs_hash,
         uint256 _time
-    ) public payable isManufacturer(msg.sender) returns (Product memory) {
+    ) public payable isManufacturer(msg.sender) returns (Vehicle memory) {
         require(
             manufacturers[msg.sender].id != address(0),
-            "Only manufacturers can add product"
+            "Only manufacturers can add vehicle"
         );
 
         //get the manufacturer
         Manufacturer memory _manufacturer = manufacturers[msg.sender];
 
-        //create the product
-        Product memory _product;
-        _product.id = total_products;
-        _product.name = _name;
-        _product.price = _price;
-        _product.ipfs_hash = _ipfs_hash;
-        _product.manufacturer = _manufacturer.id;
-        _product.stage = Stage.manufactured;
-        _product.total_retailers = 0;
-        _product.currentOwner = msg.sender;
+        //create the vehicle
+        Vehicle memory _vehicle;
+        _vehicle.id = total_vehicles;
+        _vehicle.name = _name;
+        _vehicle.price = _price;
+        _vehicle.ipfs_hash = _ipfs_hash;
+        _vehicle.manufacturer = _manufacturer.id;
+        _vehicle.stage = Stage.manufactured;
+        _vehicle.total_retailers = 0;
+        _vehicle.currentOwner = msg.sender;
 
-        //add the product to records
-        products.push(_product);
-        total_products += 1;
+        //add the vehicle to records
+        vehicles.push(_vehicle);
+        total_vehicles += 1;
 
-        //add the product to the manufacturer inventory records
-        manufacturer_inventory[msg.sender].push(_product.id);
-        _manufacturer.total_products += 1;
+        //add the vehicle to the manufacturer inventory records
+        manufacturer_inventory[msg.sender].push(_vehicle.id);
+        _manufacturer.total_vehicles += 1;
         manufacturers[msg.sender] = _manufacturer;
 
         //Add into proper mappings
-        Product_Retailers[_product.id] = address_array;
+        Vehicle_Retailers[_vehicle.id] = address_array;
 
-        emit Product_Added(_product.id, msg.sender, _time);
+        emit Vehicle_Added(_vehicle.id, msg.sender, _time);
 
-        return _product;
+        return _vehicle;
     }
 
-    function releaseProduct(uint256 _productId, uint256 _time)
+    function releaseVehicle(uint256 _vehicleId, uint256 _time)
         public
         payable
         isRetailer(msg.sender)
-        returns (Product memory)
+        returns (Vehicle memory)
     {
-        require(_productId < total_products, "Product does not exist");
+        require(_vehicleId < total_vehicles, "Vehicle does not exist");
 
-        //Get the product
-        Product memory _product = products[_productId];
+        //Get the vehicle
+        Vehicle memory _vehicle = vehicles[_vehicleId];
 
-        //check if the product has already been released or manufactured
+        //check if the vehicle has already been released or manufactured
         require(
-            _product.stage == Stage.manufactured,
-            "Product has been released or sold"
+            _vehicle.stage == Stage.manufactured,
+            "Vehicle has been released or sold"
         );
 
         //Shift ownership from manufacturer to retailer
-        Product_Retailers[_productId].push(msg.sender);
-        _product.total_retailers++;
-        _product.stage = Stage.released;
-        _product.currentOwner = msg.sender;
+        Vehicle_Retailers[_vehicleId].push(msg.sender);
+        _vehicle.total_retailers++;
+        _vehicle.stage = Stage.released;
+        _vehicle.currentOwner = msg.sender;
 
         //Remove the element from the inventory of manufacturer and update count
         Manufacturer memory _manufacturer = manufacturers[
-            _product.manufacturer
+            _vehicle.manufacturer
         ];
-        for (uint256 i = 0; i < _manufacturer.total_products; i++) {
+        for (uint256 i = 0; i < _manufacturer.total_vehicles; i++) {
             if (
-                manufacturer_inventory[_product.manufacturer][i] == _productId
+                manufacturer_inventory[_vehicle.manufacturer][i] == _vehicleId
             ) {
-                manufacturer_inventory[_product.manufacturer] = removeElement(
+                manufacturer_inventory[_vehicle.manufacturer] = removeElement(
                     i,
-                    manufacturer_inventory[_product.manufacturer]
+                    manufacturer_inventory[_vehicle.manufacturer]
                 );
-                // delete manufacturer_inventory[_product.manufacturer][i];
+                // delete manufacturer_inventory[_vehicle.manufacturer][i];
                 break;
             }
         }
-        _manufacturer.total_products -= 1;
-        manufacturers[_product.manufacturer] = _manufacturer;
+        _manufacturer.total_vehicles -= 1;
+        manufacturers[_vehicle.manufacturer] = _manufacturer;
 
-        //Add the product to retailer's inventory and update count
-        retailer_inventory[msg.sender].push(_product.id);
+        //Add the vehicle to retailer's inventory and update count
+        retailer_inventory[msg.sender].push(_vehicle.id);
         Retailer memory _retailer = retailers[msg.sender];
-        _retailer.total_products += 1;
+        _retailer.total_vehicles += 1;
         retailers[msg.sender] = _retailer;
 
-        //save the updated product details
-        products[_productId] = _product;
+        //save the updated vehicle details
+        vehicles[_vehicleId] = _vehicle;
 
-        emit Product_Released(
-            _productId,
-            _product.manufacturer,
+        emit Vehicle_Released(
+            _vehicleId,
+            _vehicle.manufacturer,
             msg.sender,
             _time
         );
 
-        return _product;
+        return _vehicle;
     }
 
-    function buyProduct(uint256 _productId, uint256 _time)
+    function buyVehicle(uint256 _vehicleId, uint256 _time)
         public
         payable
         isCustomer(msg.sender)
-        returns (Product memory)
+        returns (Vehicle memory)
     {
-        require(_productId < total_products, "Product does not exist");
+        require(_vehicleId < total_vehicles, "Vehicle does not exist");
 
-        //Get the product
-        Product memory _product = products[_productId];
+        //Get the vehicle
+        Vehicle memory _vehicle = vehicles[_vehicleId];
 
-        //check if the product has already been released or manufactured
+        //check if the vehicle has already been released or manufactured
         require(
-            _product.stage == Stage.released,
-            "Product has not been released or has been already sold"
+            _vehicle.stage == Stage.released,
+            "Vehicle has not been released or has been already sold"
         );
 
         //Get the details of the retailer who is selling
-        address _retailerId = Product_Retailers[_product.id][
-            _product.total_retailers - 1
+        address _retailerId = Vehicle_Retailers[_vehicle.id][
+            _vehicle.total_retailers - 1
         ];
         Retailer memory _retailer = retailers[_retailerId];
 
@@ -310,20 +310,20 @@ contract DeTrace {
         Customer memory _customer = customers[msg.sender];
 
         //Shift ownership from retailer to customer
-        _product.stage = Stage.sold;
-        _product.customer = _customer.id;
-        _product.currentOwner = msg.sender;
+        _vehicle.stage = Stage.sold;
+        _vehicle.customer = _customer.id;
+        _vehicle.currentOwner = msg.sender;
 
         //Remove the element from the inventory of retailer and update count
-        address _current_retailer_address = Product_Retailers[_productId][
-            Product_Retailers[_productId].length - 1
+        address _current_retailer_address = Vehicle_Retailers[_vehicleId][
+            Vehicle_Retailers[_vehicleId].length - 1
         ];
         Retailer memory _current_retailer = retailers[
             _current_retailer_address
         ];
-        for (uint256 i = 0; i < _current_retailer.total_products; i++) {
+        for (uint256 i = 0; i < _current_retailer.total_vehicles; i++) {
             if (
-                retailer_inventory[_current_retailer_address][i] == _productId
+                retailer_inventory[_current_retailer_address][i] == _vehicleId
             ) {
                 retailer_inventory[_current_retailer_address] = removeElement(
                     i,
@@ -333,20 +333,20 @@ contract DeTrace {
                 break;
             }
         }
-        _current_retailer.total_products -= 1;
+        _current_retailer.total_vehicles -= 1;
         retailers[_current_retailer_address] = _current_retailer;
 
-        //Add the product to customer's orders and update count
-        customer_orders[msg.sender].push(_product.id);
+        //Add the vehicle to customer's orders and update count
+        customer_orders[msg.sender].push(_vehicle.id);
         _customer.total_orders += 1;
         customers[msg.sender] = _customer;
 
-        //save the updated product details
-        products[_productId] = _product;
+        //save the updated vehicle details
+        vehicles[_vehicletId] = _vehicle;
 
-        emit Product_Sold(_productId, _retailer.id, msg.sender, _time);
+        emit Vehicle_Sold(_vehicleId, _retailer.id, msg.sender, _time);
 
-        return _product;
+        return _vehicle;
     }
 
     function getManufacturerDetails(address _manufacturerId)
@@ -363,8 +363,8 @@ contract DeTrace {
         view
         returns (uint256[] memory)
     {
-        uint256[] memory _product_ids = manufacturer_inventory[_manufacturerId];
-        return _product_ids;
+        uint256[] memory _vehicle_ids = manufacturer_inventory[_manufacturerId];
+        return _vehicle_ids;
     }
 
     function getRetailerDetails(address _retailerId)
@@ -381,8 +381,8 @@ contract DeTrace {
         view
         returns (uint256[] memory)
     {
-        uint256[] memory _product_ids = retailer_inventory[_retailerId];
-        return _product_ids;
+        uint256[] memory _vehicle_ids = retailer_inventory[_retailerId];
+        return _vehicle_ids;
     }
 
     function getCustomerDetails(address _customerId)
@@ -399,45 +399,45 @@ contract DeTrace {
         view
         returns (uint256[] memory)
     {
-        uint256[] memory _product_ids = customer_orders[_customerId];
-        return _product_ids;
+        uint256[] memory _vehicle_ids = customer_orders[_customerId];
+        return _vehicle_ids;
     }
 
-    function getProductDetails(uint256 _productId)
+    function getVehicleDetails(uint256 _vehicleId)
         public
         view
         returns (
-            Product memory,
+            Vehicle memory,
             Retailer[] memory,
             Manufacturer memory,
             Customer memory
         )
     {
-        //Get the product
-        Product memory _product = products[_productId];
+        //Get the vehicle
+        Vehicle memory _vehicle = vehicles[_vehicleId];
 
         //Get all the retailers addresses
-        address[] memory _retailer_addresses = Product_Retailers[_productId];
+        address[] memory _retailer_addresses = Vehicle_Retailers[_vehicleId];
 
         //Initialize an empty reailters array
-        Retailer[] memory _retailers = new Retailer[](_product.total_retailers);
+        Retailer[] memory _retailers = new Retailer[](_vehicle.total_retailers);
 
         //Get the manufacturer
         Manufacturer memory _manufacturer = getManufacturerDetails(
-            _product.manufacturer
+            _vehicle.manufacturer
         );
 
         //Get the customer
-        Customer memory _customer = getCustomerDetails(_product.customer);
+        Customer memory _customer = getCustomerDetails(_vehicle.customer);
 
         //Push all the retailers in the _retailers array
         for (uint256 i = 0; i < _retailer_addresses.length; i++) {
             _retailers[i] = getRetailerDetails(_retailer_addresses[i]);
         }
-        return (_product, _retailers, _manufacturer, _customer);
+        return (_vehicle, _retailers, _manufacturer, _customer);
     }
 
-    function getCurrentStatus(uint256 _productId)
+    function getCurrentStatus(uint256 _vehicleId)
         public
         view
         returns (
@@ -451,11 +451,11 @@ contract DeTrace {
         //Initilize an empty address for owner
         address _owner_address;
 
-        //Get product details
-        Product memory _product = products[_productId];
+        //Get vehicle details
+        Vehicle memory _vehicle = vehicles[_vehicleId];
 
-        //Get product stage
-        Stage _stage = _product.stage;
+        //Get vehicle stage
+        Stage _stage = _vehicle.stage;
 
         //Instantiate each user
         Manufacturer memory _manufacturer;
@@ -464,14 +464,14 @@ contract DeTrace {
 
         //Check for each stage
         if (_stage == Stage.manufactured) {
-            _owner_address = _product.manufacturer;
+            _owner_address = _vehicle.manufacturer;
             _manufacturer = getManufacturerDetails(_owner_address);
         } else if (_stage == Stage.sold) {
-            _owner_address = _product.customer;
+            _owner_address = _vehicle.customer;
             _customer = getCustomerDetails(_owner_address);
         } else {
-            _owner_address = Product_Retailers[_productId][
-                _product.total_retailers - 1
+            _owner_address = Vehicle_Retailers[_vehicleId][
+                _vehicle.total_retailers - 1
             ];
             _retailer = getRetailerDetails(_owner_address);
         }
