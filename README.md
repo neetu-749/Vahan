@@ -17,7 +17,7 @@
 
 ### Preview
 
-(![Screenshot (1463)](https://user-images.githubusercontent.com/91332294/178220106-abe0618b-4865-41dc-b069-3dc5a045b5ca.png)
+![Screenshot (1463)](https://user-images.githubusercontent.com/91332294/178220106-abe0618b-4865-41dc-b069-3dc5a045b5ca.png)
 
 ![WhatsApp Image 2022-04-10 at 11 57 47 PM](https://user-images.githubusercontent.com/75155230/162634641-711ab37f-19eb-4bf1-be2f-e6162143aac0.jpeg)
 
