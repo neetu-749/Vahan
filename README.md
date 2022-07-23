@@ -1,13 +1,13 @@
 
 <div align="center">
-  <a href="https://github.com/neetu-749/Vahan">
+  <a href="https://github.com/neetu-749/DeVahan">
     <img src="https://www.clipartkey.com/mpngs/m/93-934065_transparent-drivers-license-clipart-fleet-management-system-icon.png" alt="Logo" width="100" height="100">
   </a>
 
-  <h1 align="center">Vahan</h1>
+  <h1 align="center">DeVahan</h1>
 </div>
 
-**Vahan** is a decentralized vehicle management system that allows you to efficiently manage the vehicle supply chain efficiently yet easily. 
+**DeVahan** is a decentralized vehicle management system that allows you to efficiently manage the vehicle supply chain efficiently yet easily. 
 
 ### 💫 How it works
 - It begins at the root level where the manufacturer registers a vehicle with the system. When the vehicle is released in the market, it is sold to a retailer for a predefined price. A customer can then purchase this vehicle from the retailer. All of these transactions are recorded in the blockchain and this makes the vehicle flow more transparent. 
